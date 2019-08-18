@@ -1,0 +1,7 @@
+platform :ios, '11.0'
+
+target 'RocketChatViewController Example' do
+  use_frameworks!
+
+  pod 'RocketChatViewController', :path => "../"
+end
