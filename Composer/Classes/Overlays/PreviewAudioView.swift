@@ -108,7 +108,7 @@ public class PreviewAudioView: UIView, ComposerLocalizable {
         backgroundColor = .white
         clipsToBounds = true
 
-        NotificationCenter.default.addObserver(forName: .UIContentSizeCategoryDidChange, object: nil, queue: nil, using: { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil, using: { [weak self] _ in
             self?.setNeedsLayout()
         })
 
@@ -231,7 +231,11 @@ public class AudioView: UIView {
         $0.text = "0:00"
         $0.font = UIFont.systemFont(ofSize: Consts.timeLabelFontSize)
         $0.textColor = #colorLiteral(red: 0.3294117647, green: 0.3450980392, blue: 0.368627451, alpha: 1)
-        $0.adjustsFontForContentSizeCategory = true
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
 
         $0.numberOfLines = 1
         $0.lineBreakMode = .byTruncatingTail
@@ -284,7 +288,7 @@ public class AudioView: UIView {
         layer.cornerRadius = Consts.layerCornerRadius
         clipsToBounds = true
 
-        NotificationCenter.default.addObserver(forName: .UIContentSizeCategoryDidChange, object: nil, queue: nil, using: { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil, using: { [weak self] _ in
             self?.setNeedsLayout()
         })
 
@@ -329,21 +333,25 @@ public class AudioView: UIView {
 
     func setupTimer() {
         updateTimer?.invalidate()
-        updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { [weak self] _ in
-            guard let self = self, let player = self.player else { return }
-
-            self.progressSlider.maximumValue = Float(player.duration)
-
-            if self.playing {
-                self.progressSlider.value = Float(player.currentTime)
-
-                if !player.isPlaying {
-                    self.playing = false
+        if #available(iOS 10.0, *) {
+            updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { [weak self] _ in
+                guard let self = self, let player = self.player else { return }
+                
+                self.progressSlider.maximumValue = Float(player.duration)
+                
+                if self.playing {
+                    self.progressSlider.value = Float(player.currentTime)
+                    
+                    if !player.isPlaying {
+                        self.playing = false
+                    }
                 }
+                
+                let displayTime = self.playing ? Int(player.currentTime) : Int(player.duration)
+                self.timeLabel.text = String(format: "%01d:%02d", (displayTime/60) % 60, displayTime % 60)
             }
-
-            let displayTime = self.playing ? Int(player.currentTime) : Int(player.duration)
-            self.timeLabel.text = String(format: "%01d:%02d", (displayTime/60) % 60, displayTime % 60)
+        } else {
+            // Fallback on earlier versions
         }
     }
 
@@ -366,7 +374,7 @@ public class AudioView: UIView {
 
 extension AudioView: AVAudioPlayerDelegate {
 
-    private func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+    public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         playing = false
         progressSlider.value = 0.0
     }

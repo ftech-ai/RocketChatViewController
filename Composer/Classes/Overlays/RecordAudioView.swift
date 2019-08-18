@@ -9,10 +9,13 @@ import UIKit
 import AVFoundation
 
 public protocol RecordAudioViewDelegate: class {
+    @available(iOS 10.0, *)
     func recordAudioView(_ view: RecordAudioView, didRecordAudio url: URL)
+    @available(iOS 10.0, *)
     func recordAudioViewDidCancel(_ view: RecordAudioView)
 }
 
+@available(iOS 10.0, *)
 public class RecordAudioView: UIView {
     public weak var composerView: ComposerView?
     public weak var delegate: RecordAudioViewDelegate?
@@ -121,7 +124,7 @@ public class RecordAudioView: UIView {
             repeats: true
         )
 
-        NotificationCenter.default.addObserver(forName: .UIContentSizeCategoryDidChange, object: nil, queue: nil, using: { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil, using: { [weak self] _ in
             self?.setNeedsLayout()
         })
 
@@ -145,16 +148,34 @@ public class RecordAudioView: UIView {
     private func setupConstraints() {
         translatesAutoresizingMaskIntoConstraints = false
 
-        NSLayoutConstraint.activate([
-            timeLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            timeLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            swipeIndicatorView.trailingAnchor.constraint(equalTo: micButton.leadingAnchor, constant: -43),
-            swipeIndicatorView.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            micButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -11),
-            micButton.centerYAnchor.constraint(equalTo: centerYAnchor)
-        ])
+        if #available(iOS 11.0, *) {
+            NSLayoutConstraint.activate([
+                timeLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
+                timeLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+                
+                swipeIndicatorView.trailingAnchor.constraint(equalTo: micButton.leadingAnchor, constant: -43),
+                swipeIndicatorView.centerYAnchor.constraint(equalTo: centerYAnchor),
+                
+                micButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -11),
+                micButton.centerYAnchor.constraint(equalTo: centerYAnchor)
+                ])
+        } else {
+            
+            
+            // Fallback on earlier versions
+            NSLayoutConstraint.activate([
+               timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+                timeLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+                
+                swipeIndicatorView.trailingAnchor.constraint(equalTo: micButton.leadingAnchor, constant: -43),
+                swipeIndicatorView.centerYAnchor.constraint(equalTo: centerYAnchor),
+                
+               micButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -11),
+                micButton.centerYAnchor.constraint(equalTo: centerYAnchor)
+                ])
+            
+           
+        }
     }
 
     /**
@@ -227,6 +248,7 @@ public class RecordAudioView: UIView {
 
 // MARK: AVAudioRecorderDelegate
 
+@available(iOS 10.0, *)
 extension RecordAudioView: AVAudioRecorderDelegate {
     public func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         delegate?.recordAudioView(self, didRecordAudio: recorder.url)
@@ -247,6 +269,7 @@ extension RecordAudioView: AVAudioRecorderDelegate {
 
 // MARK: Events
 
+@available(iOS 10.0, *)
 extension RecordAudioView {
     @objc func timerTick() {
         if audioRecorder.isRecording {
@@ -288,7 +311,11 @@ public class SwipeIndicatorView: UIView, ComposerLocalizable {
         $0.text = localized(.swipeIndicatorViewTitle)
         $0.font = .preferredFont(forTextStyle: .body)
         $0.textColor = #colorLiteral(red: 0.6196078431, green: 0.6352941176, blue: 0.6588235294, alpha: 1)
-        $0.adjustsFontForContentSizeCategory = true
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
 
         $0.numberOfLines = 1
         $0.lineBreakMode = .byTruncatingTail
@@ -317,7 +344,7 @@ public class SwipeIndicatorView: UIView, ComposerLocalizable {
     private func commonInit() {
         clipsToBounds = true
 
-        NotificationCenter.default.addObserver(forName: .UIContentSizeCategoryDidChange, object: nil, queue: nil, using: { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil, using: { [weak self] _ in
             self?.setNeedsLayout()
         })
 

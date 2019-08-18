@@ -22,8 +22,11 @@ private extension ComposerView {
         return componentStackView.subviews.first(where: { $0 as? EditingView != nil }) as? EditingView
     }
 
+    @available(iOS 10.0, *)
     var recordAudioView: RecordAudioView? {
-        return overlayView.subviews.first(where: { $0 as? RecordAudioView != nil }) as? RecordAudioView
+        return overlayView.subviews.first(where: {
+            $0 as? RecordAudioView != nil
+         }) as? RecordAudioView
     }
 }
 
@@ -85,15 +88,12 @@ public extension ComposerViewExpandedDelegate {
 
     func composerView(_ composerView: ComposerView, willConfigureButton button: ComposerButton) {
         if button == composerView.rightButton {
-            let composerButtonAccessibilityLabel = composerView.textView.text.isEmpty
-                ? ComposerView.localized(.micButtonLabel) : ComposerView.localized(.sendButtonLabel)
-            button.accessibilityLabel = composerButtonAccessibilityLabel
             let image = composerView.textView.text.isEmpty
                 ? ComposerAssets.micButtonImage : ComposerAssets.sendButtonImage
             button.setBackgroundImage(image, for: .normal)
         }
     }
-
+@available(iOS 10.0, *)
     func composerView(_ composerView: ComposerView, event: UIEvent, eventType: UIControl.Event, happenedInButton button: ComposerButton) {
         let rightButtonIsRecordAudio = composerView.textView.text.isEmpty
 
@@ -125,7 +125,9 @@ public extension ComposerViewExpandedDelegate {
 
         if [.touchDragInside, .touchDragOutside].contains(eventType), let touch = event.allTouches?.first {
             if button === composerView.rightButton {
-                let first = touch.precisePreviousLocation(in: button).x
+                
+                    let first = touch.precisePreviousLocation(in: button).x
+                
                 let second = touch.location(in: button).x
                 self.composerView(composerView, didDragRecordAudioButton: button, delta: second - first)
             }
@@ -158,7 +160,7 @@ public extension ComposerViewExpandedDelegate {
             }
         }
     }
-
+@available(iOS 10.0, *)
     func composerView(_ composerView: ComposerView, willConfigureOverlayView view: OverlayView, with userData: Any?) {
         let audioUrl = (view.subviews.first as? RecordAudioView)?.audioRecorder.url
 
@@ -167,24 +169,25 @@ public extension ComposerViewExpandedDelegate {
         }
 
         if userData as? String == "RecordAudioView" {
-            let recordAudioView: RecordAudioView
-            if let recordAudioView_ = view.subviews.first as? RecordAudioView {
-                recordAudioView = recordAudioView_
-            } else {
-                recordAudioView = RecordAudioView()
-                recordAudioView.translatesAutoresizingMaskIntoConstraints = false
-                recordAudioView.composerView = composerView
-                recordAudioView.delegate = self
-
-                view.addSubview(recordAudioView)
-                view.addConstraints([
-                    recordAudioView.heightAnchor.constraint(equalTo: view.heightAnchor),
-                    recordAudioView.widthAnchor.constraint(equalTo: view.widthAnchor),
-                    recordAudioView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                    recordAudioView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-                ])
-            }
-
+            
+                let recordAudioView: RecordAudioView
+           
+                if let recordAudioView_ = view.subviews.first as? RecordAudioView {
+                    recordAudioView = recordAudioView_
+                } else {
+                    recordAudioView = RecordAudioView()
+                    recordAudioView.translatesAutoresizingMaskIntoConstraints = false
+                    recordAudioView.composerView = composerView
+                    recordAudioView.delegate = self
+                    
+                    view.addSubview(recordAudioView)
+                    view.addConstraints([
+                        recordAudioView.heightAnchor.constraint(equalTo: view.heightAnchor),
+                        recordAudioView.widthAnchor.constraint(equalTo: view.widthAnchor),
+                        recordAudioView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                        recordAudioView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+                        ])
+                }
             return
         }
 
@@ -229,12 +232,12 @@ public extension ComposerViewExpandedDelegate {
             view.delegate = self
         }
     }
-
+@available(iOS 10.0, *)
     func composerView(_ composerView: ComposerView, didPressRecordAudioButton button: UIButton) {
         composerView.showOverlay(userData: "RecordAudioView")
         composerView.recordAudioView?.startRecording()
     }
-
+@available(iOS 10.0, *)
     func composerView(_ composerView: ComposerView, didReleaseRecordAudioButton button: UIButton) {
         guard let view = composerView.recordAudioView else {
             return
@@ -248,7 +251,7 @@ public extension ComposerViewExpandedDelegate {
             view.stopRecording()
         }
     }
-
+@available(iOS 10.0, *)
     func composerView(_ composerView: ComposerView, didDragRecordAudioButton button: UIButton, delta: CGFloat) {
         guard let view = composerView.recordAudioView else {
             return
@@ -256,11 +259,11 @@ public extension ComposerViewExpandedDelegate {
 
         view.transform = view.transform.translatedBy(x: delta, y: 0)
     }
-
+@available(iOS 10.0, *)
     func recordAudioView(_ view: RecordAudioView, didRecordAudio url: URL) {
         view.composerView?.showOverlay(userData: "PreviewAudioView")
     }
-
+@available(iOS 10.0, *)
     func recordAudioViewDidCancel(_ view: RecordAudioView) {
         view.composerView?.hideOverlay()
     }

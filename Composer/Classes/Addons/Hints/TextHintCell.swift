@@ -35,7 +35,11 @@ open class TextHintCell<PrefixView: UIView>: UITableViewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
 
         $0.font = .preferredFont(forTextStyle: .body)
-        $0.adjustsFontForContentSizeCategory = true
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     open override var intrinsicContentSize: CGSize {
@@ -43,7 +47,7 @@ open class TextHintCell<PrefixView: UIView>: UITableViewCell {
         return CGSize(width: super.intrinsicContentSize.width, height: height)
     }
 
-    public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         commonInit()
     }

@@ -42,7 +42,11 @@ public class ReplyView: UIView {
         $0.text = "jaad.brinkley"
         $0.textColor = #colorLiteral(red: 0.1137254902, green: 0.4549019608, blue: 0.9607843137, alpha: 1)
         $0.font = .preferredFont(forTextStyle: .title3)
-        $0.adjustsFontForContentSizeCategory = true
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
 
         $0.numberOfLines = 1
         $0.lineBreakMode = .byTruncatingTail
@@ -54,7 +58,11 @@ public class ReplyView: UIView {
         $0.text = "2:10 PM"
         $0.textColor = #colorLiteral(red: 0.6196078431, green: 0.6352941176, blue: 0.6588235294, alpha: 1)
         $0.font = .preferredFont(forTextStyle: .footnote)
-        $0.adjustsFontForContentSizeCategory = true
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     public let textLabel = tap(UILabel()) {
@@ -62,7 +70,11 @@ public class ReplyView: UIView {
 
         $0.text = "This is a multiline chat message from a person that sent a message"
         $0.font = .preferredFont(forTextStyle: .body)
-        $0.adjustsFontForContentSizeCategory = true
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
 
         $0.numberOfLines = 1
         $0.lineBreakMode = .byTruncatingTail
@@ -133,7 +145,7 @@ public class ReplyView: UIView {
         clipsToBounds = true
         isHidden = true
 
-        NotificationCenter.default.addObserver(forName: .UIContentSizeCategoryDidChange, object: nil, queue: nil, using: { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil, using: { [weak self] _ in
             self?.setNeedsLayout()
         })
 

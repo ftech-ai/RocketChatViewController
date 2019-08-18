@@ -20,7 +20,11 @@ public class EditingView: UIView, ComposerLocalizable {
 
         $0.text = localized(.editingViewTitle)
         $0.font = .preferredFont(forTextStyle: .headline)
-        $0.adjustsFontForContentSizeCategory = true
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
 
         $0.numberOfLines = 1
         $0.lineBreakMode = .byTruncatingTail
@@ -83,7 +87,7 @@ public class EditingView: UIView, ComposerLocalizable {
         clipsToBounds = true
         isHidden = true
 
-        NotificationCenter.default.addObserver(forName: .UIContentSizeCategoryDidChange, object: nil, queue: nil, using: { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil, using: { [weak self] _ in
             self?.setNeedsLayout()
         })
 
@@ -105,13 +109,26 @@ public class EditingView: UIView, ComposerLocalizable {
     private func setupConstraints() {
         translatesAutoresizingMaskIntoConstraints = false
 
-        NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: layoutMargins.left),
-            titleLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: layoutMargins.top),
-
-            closeButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -layoutMargins.right),
-            closeButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: layoutMargins.top)
-        ])
+        if #available(iOS 11.0, *) {
+            NSLayoutConstraint.activate([
+                titleLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: layoutMargins.left),
+                titleLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: layoutMargins.top),
+                
+                closeButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -layoutMargins.right),
+                closeButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: layoutMargins.top)
+                ])
+        } else {
+            // Fallback on earlier versions
+            NSLayoutConstraint.activate([
+                titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: layoutMargins.left),
+                titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: layoutMargins.top),
+                
+                closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -layoutMargins.right),
+                closeButton.topAnchor.constraint(equalTo: topAnchor, constant: layoutMargins.top)
+                ])
+            
+            
+        }
     }
 }
 

@@ -64,7 +64,6 @@ public class ComposerView: UIView, ComposerLocalizable {
     public let leftButton = tap(ComposerButton()) {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.setBackgroundImage(ComposerAssets.addButtonImage, for: .normal)
-        $0.accessibilityLabel = localized(.addButtonLabel)
 
         $0.addTarget(self, action: #selector(touchUpInsideButton), for: .touchUpInside)
         $0.addTarget(self, action: #selector(touchUpOutsideButton), for: .touchUpOutside)
@@ -96,15 +95,22 @@ public class ComposerView: UIView, ComposerLocalizable {
      */
     public let textView = tap(ComposerTextView()) {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.text = ""
-        $0.font = .preferredFont(forTextStyle: .body)
-        $0.adjustsFontForContentSizeCategory = true
-        $0.accessibilityLabel = localized(.textViewPlaceholder)
 
+        $0.text = ""
         $0.placeholderLabel.text = localized(.textViewPlaceholder)
         $0.placeholderLabel.font = .preferredFont(forTextStyle: .body)
-        $0.placeholderLabel.adjustsFontForContentSizeCategory = true
-        $0.placeholderLabel.isAccessibilityElement = false
+        if #available(iOS 10.0, *) {
+            $0.placeholderLabel.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
+
+        $0.font = .preferredFont(forTextStyle: .body)
+        if #available(iOS 10.0, *) {
+            $0.adjustsFontForContentSizeCategory = true
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     /**
@@ -211,56 +217,216 @@ public class ComposerView: UIView, ComposerLocalizable {
      Sets up constraints between the UI elements in the composer.
      */
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            // containerView constraints
-
-            containerViewLeadingConstraint,
-            containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-
-            // utilityStackView constraints
-
-            utilityStackView.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor),
-            utilityStackView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
-            utilityStackView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
-            utilityStackView.bottomAnchor.constraint(equalTo: topSeparatorView.topAnchor),
-
-            // topSeparatorView constraints
-
-            topSeparatorView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
-            topSeparatorView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
-            topSeparatorView.bottomAnchor.constraint(equalTo: componentStackView.topAnchor),
-
-            // componentStackView constraints
-
-            componentStackView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
-            componentStackView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
-            componentStackView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
-            componentStackView.bottomAnchor.constraint(equalTo: textView.topAnchor, constant: -10),
-
-            // textView constraints
-
-            textViewLeadingConstraint,
-            textView.trailingAnchor.constraint(equalTo: rightButton.leadingAnchor, constant: 0),
-            textView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -layoutMargins.bottom),
-
-            // rightButton constraints
-
-            rightButton.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor, constant: -layoutMargins.right*2),
-            rightButton.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant:  -layoutMargins.bottom*2),
-
-            // leftButton constraints
-
-            leftButton.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor, constant: layoutMargins.left*2),
-            leftButton.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -layoutMargins.bottom*2),
-
-            // overlayView constraints
-
-            overlayView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
-            overlayView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor),
-            overlayView.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor),
-            overlayView.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor)
-        ])
+        if #available(iOS 11.0, *) {
+            NSLayoutConstraint.activate([
+                // containerView constraints
+                
+                containerViewLeadingConstraint,
+                containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                
+                // utilityStackView constraints
+                
+                utilityStackView.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor),
+                utilityStackView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
+                utilityStackView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                utilityStackView.bottomAnchor.constraint(equalTo: topSeparatorView.topAnchor),
+                
+                // topSeparatorView constraints
+                
+                topSeparatorView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
+                topSeparatorView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                topSeparatorView.bottomAnchor.constraint(equalTo: componentStackView.topAnchor),
+                
+                // componentStackView constraints
+                
+                componentStackView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                componentStackView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
+                componentStackView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                componentStackView.bottomAnchor.constraint(equalTo: textView.topAnchor, constant: -10),
+                
+                // textView constraints
+                
+                textViewLeadingConstraint,
+                textView.trailingAnchor.constraint(equalTo: rightButton.leadingAnchor, constant: 0),
+                textView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -layoutMargins.bottom),
+                
+                // rightButton constraints
+                
+                rightButton.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor, constant: -layoutMargins.right*2),
+                rightButton.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant:  -layoutMargins.bottom*2),
+                
+                // leftButton constraints
+                
+                leftButton.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor, constant: layoutMargins.left*2),
+                leftButton.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -layoutMargins.bottom*2),
+                
+                // overlayView constraints
+                
+                overlayView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                overlayView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor),
+                overlayView.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor),
+                overlayView.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor)
+                ])
+        } else {
+            // Fallback on earlier versions
+            
+            NSLayoutConstraint.activate([
+                // containerView constraints
+                
+                containerViewLeadingConstraint,
+                containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                
+                // utilityStackView constraints
+                
+                utilityStackView.topAnchor.constraint(equalTo: containerView.topAnchor),
+                utilityStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor),
+                utilityStackView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                utilityStackView.bottomAnchor.constraint(equalTo: topSeparatorView.topAnchor),
+                
+                // topSeparatorView constraints
+                
+                topSeparatorView.widthAnchor.constraint(equalTo: containerView.widthAnchor),
+                topSeparatorView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                topSeparatorView.bottomAnchor.constraint(equalTo: componentStackView.topAnchor),
+                
+                // componentStackView constraints
+                
+                componentStackView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                componentStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor),
+                componentStackView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                componentStackView.bottomAnchor.constraint(equalTo: textView.topAnchor, constant: -10),
+                
+                // textView constraints
+                
+                textViewLeadingConstraint,
+                textView.trailingAnchor.constraint(equalTo: rightButton.leadingAnchor, constant: 0),
+                textView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -layoutMargins.bottom),
+                
+                // rightButton constraints
+                
+                rightButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -layoutMargins.right*2),
+                rightButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant:  -layoutMargins.bottom*2),
+                
+                // leftButton constraints
+                
+                leftButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: layoutMargins.left*2),
+                leftButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -layoutMargins.bottom*2),
+                
+                // overlayView constraints
+                
+                overlayView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                overlayView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+                overlayView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                overlayView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
+                ])
+            
+        };
+        if #available(iOS 11.0, *) {
+            NSLayoutConstraint.activate([
+                // containerView constraints
+                
+                containerViewLeadingConstraint,
+                containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                
+                // utilityStackView constraints
+                
+                utilityStackView.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor),
+                utilityStackView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
+                utilityStackView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                utilityStackView.bottomAnchor.constraint(equalTo: topSeparatorView.topAnchor),
+                
+                // topSeparatorView constraints
+                
+                topSeparatorView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
+                topSeparatorView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                topSeparatorView.bottomAnchor.constraint(equalTo: componentStackView.topAnchor),
+                
+                // componentStackView constraints
+                
+                componentStackView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                componentStackView.widthAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.widthAnchor),
+                componentStackView.centerXAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.centerXAnchor),
+                componentStackView.bottomAnchor.constraint(equalTo: textView.topAnchor, constant: -10),
+                
+                // textView constraints
+                
+                textViewLeadingConstraint,
+                textView.trailingAnchor.constraint(equalTo: rightButton.leadingAnchor, constant: 0),
+                textView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -layoutMargins.bottom),
+                
+                // rightButton constraints
+                
+                rightButton.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor, constant: -layoutMargins.right*2),
+                rightButton.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant:  -layoutMargins.bottom*2),
+                
+                // leftButton constraints
+                
+                leftButton.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor, constant: layoutMargins.left*2),
+                leftButton.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor, constant: -layoutMargins.bottom*2),
+                
+                // overlayView constraints
+                
+                overlayView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                overlayView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor),
+                overlayView.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor),
+                overlayView.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor)
+                ])
+        } else {
+            // Fallback on earlier versions
+            NSLayoutConstraint.activate([
+                // containerView constraints
+                
+                containerViewLeadingConstraint,
+                containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                
+                // utilityStackView constraints
+                
+                utilityStackView.topAnchor.constraint(equalTo: containerView.topAnchor),
+                utilityStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor),
+                utilityStackView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                utilityStackView.bottomAnchor.constraint(equalTo: topSeparatorView.topAnchor),
+                
+                // topSeparatorView constraints
+                
+                topSeparatorView.widthAnchor.constraint(equalTo: containerView.widthAnchor),
+                topSeparatorView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                topSeparatorView.bottomAnchor.constraint(equalTo: componentStackView.topAnchor),
+                
+                // componentStackView constraints
+                
+                componentStackView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                componentStackView.widthAnchor.constraint(equalTo: containerView.widthAnchor),
+                componentStackView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                componentStackView.bottomAnchor.constraint(equalTo: textView.topAnchor, constant: -10),
+                
+                // textView constraints
+                
+                textViewLeadingConstraint,
+                textView.trailingAnchor.constraint(equalTo: rightButton.leadingAnchor, constant: 0),
+                textView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -layoutMargins.bottom),
+                
+                // rightButton constraints
+                
+                rightButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -layoutMargins.right*2),
+                rightButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant:  -layoutMargins.bottom*2),
+                
+                // leftButton constraints
+                
+                leftButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: layoutMargins.left*2),
+                leftButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -layoutMargins.bottom*2),
+                
+                // overlayView constraints
+                
+                overlayView.topAnchor.constraint(equalTo: topSeparatorView.bottomAnchor),
+                overlayView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+                overlayView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                overlayView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
+                ])
+        }
     }
 
     public override func layoutSubviews() {
@@ -313,7 +479,7 @@ public extension ComposerView {
 // MARK: Buttons
 
 public extension ComposerView {
-    public func configureButtons() {
+    func configureButtons() {
         currentDelegate.composerView(self, willConfigureButton: leftButton)
         currentDelegate.composerView(self, willConfigureButton: rightButton)
     }
@@ -322,7 +488,7 @@ public extension ComposerView {
 // MARK: Addons
 
 public extension ComposerView {
-    public func reloadAddons() {
+    func reloadAddons() {
         [
             (componentStackView, ComposerAddonSlot.component),
             (utilityStackView, ComposerAddonSlot.utility)
@@ -353,7 +519,7 @@ public extension ComposerView {
     /**
      Called when the content size of the text view changes and adjusts the composer height constraint.
      */
-    public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if object as AnyObject? === leftButton && keyPath == "bounds" {
             textViewLeadingConstraint.constant = leftButton.isHidden ? 0 : layoutMargins.left
         }
@@ -407,7 +573,7 @@ public extension ComposerView {
 
 // MARK: UITextView Delegate
 extension ComposerView: UITextViewDelegate {
-    @objc func textViewDidChangeSelection(_ textView: UITextView) {
+    public func textViewDidChangeSelection(_ textView: UITextView) {
         currentDelegate.composerViewDidChangeSelection(self)
         return
     }
